@@ -1,0 +1,25 @@
+[global_config]
+  enabled_plugins = APTURLHandler, LaunchpadBugURLHandler
+  handle_size = 2
+  inactive_color_offset = 0.5
+  window_state = fullscreen
+[keybindings]
+  close_term = <Primary>w
+  line_down = <Shift>Down
+  line_up = <Shift>Up
+  next_tab = <Primary>Tab
+  prev_tab = <Primary><Shift>Tab
+[layouts]
+  [[default]]
+    [[[child1]]]
+      parent = window0
+      profile = default
+      type = Terminal
+    [[[window0]]]
+      parent = ""
+      type = Window
+[plugins]
+[profiles]
+  [[default]]
+    background_image = None
+    scrollback_lines = 1500

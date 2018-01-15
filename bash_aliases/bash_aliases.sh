@@ -22,4 +22,4 @@ alias pamt="php artisan make:test $1"
 
 alias gs="git status"
 alias gc="git commit -m $@"
-alias nah="git reset * HEAD hard; git clean -fd"
+alias nah="git reset HEAD --hard && git clean -fd"

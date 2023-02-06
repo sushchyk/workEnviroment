@@ -11,42 +11,40 @@ BASH;
 
 const BASHRC_FILENAME = 'bashrc';
 
-const BASHALIASES_FILENAME = 'bash_aliases.sh';
+const BASH_ALIASES_FILENAME = 'bash_aliases.sh';
 
-function showBashRcNotFoundMessage($pathToBashRc)
-{
-    echo "File {$pathToBashRc} not found.\n";
-}
 
-function getPathToBashRc()
+function getPathToBashRc(): string
 {
     return $_SERVER['HOME'] . '/.' . BASHRC_FILENAME;
 }
 
-function getPathToCustomCommands()
+function getPathToCustomCommands(): string
 {
-    return __DIR__ . '/' . BASHALIASES_FILENAME;
+    return __DIR__ . '/' . BASH_ALIASES_FILENAME;
 }
 
-function getBashCodeWithActualFilePath()
+function getBashCodeWithActualFilePath(): string
 {
     return sprintf(BASH_CODE, getPathToCustomCommands());
 }
 
-function generatePathToBackUpOfBashRc($pathToBashRc, $n)
+function generatePathToBackUpOfBashRc($numberSuffix): string
 {
-    return $pathToBashRc . '.save' . ($n ? $n : '');
+    return getPathToBashRc() . '.save' . ($numberSuffix ?: '');
 }
 
-function createBackupOfBashRc($pathToBashRc)
+function createBackupOfBashRc()
 {
+    $pathToBashRc = getPathToBashRc();
+
     $i = 0;
 
     do {
-        $pathToNewBackUp = generatePathToBackUpOfBashRc($pathToBashRc, $i++);
+        $pathToNewBackUp = generatePathToBackUpOfBashRc(++$i);
     } while (file_exists($pathToNewBackUp));
 
-    $pathToPrevBackUp = generatePathToBackUpOfBashRc($pathToBashRc, --$i);
+    $pathToPrevBackUp = generatePathToBackUpOfBashRc($i - 1);
     if (file_exists($pathToPrevBackUp) && md5_file($pathToPrevBackUp) === md5_file($pathToBashRc)) {
         return;
     }
@@ -54,36 +52,44 @@ function createBackupOfBashRc($pathToBashRc)
     copy($pathToBashRc, $pathToNewBackUp);
 }
 
-function isBashCodeWrittenToBashRc($pathToBashRc, $actualBashCode)
+function isBashCodeAlreadyWrittenToBashRc(): bool
 {
-    $bashRcContent = file_get_contents($pathToBashRc);
-    return strpos($bashRcContent, $actualBashCode) !== false;
+    $bashRcContent = file_get_contents(getPathToBashRc());
+    $bashCode = getBashCodeWithActualFilePath();
+    return strpos($bashRcContent, $bashCode) !== false;
 }
 
-function writeBashCodeToBashRc($pathToBashRc, $actualBashCode)
+function writeBashCodeToBashRc()
 {
+    $pathToBashRc = getPathToBashRc();
+    $actualBashCode = getBashCodeWithActualFilePath();
     file_put_contents($pathToBashRc, $actualBashCode, FILE_APPEND);
 }
 
-$pathToBashRc = getPathToBashRc();
+function doesBashRcFileExist(): bool {
+    return file_exists(getPathToBashRc());
+}
 
-if (!file_exists($pathToBashRc)) {
-    showBashRcNotFoundMessage($pathToBashRc);
+function showBashRcNotFoundMessage()
+{
+    echo sprintf("File %s not found\n", getPathToBashRc());
+}
+
+if (!doesBashRcFileExist()) {
+    showBashRcNotFoundMessage();
     exit(1);
 }
 
-$actualBashCode = getBashCodeWithActualFilePath();
 
-createBackupOfBashRc($pathToBashRc);
-if (!isBashCodeWrittenToBashRc($pathToBashRc, $actualBashCode)) {
-    writeBashCodeToBashRc($pathToBashRc, $actualBashCode);
+
+createBackupOfBashRc();
+if (!isBashCodeAlreadyWrittenToBashRc()) {
+    writeBashCodeToBashRc();
 }
 
-//TODO add colors to output:
-echo <<<'SUCCESS'
-Bash aliases successfully added!
+echo <<<'SUCCESS_MESSAGE'
+Bash aliases have been successfully setup!
 Run `. ~/.bashrc` or start session in new terminal to apply changes
-Then run 'ping_aliases' command to check it out.
+Then run 'hello_world' command to check it out.
 
-SUCCESS;
-;
+SUCCESS_MESSAGE;

@@ -1,2 +1,2 @@
 * Run `php setup.php`
-* Run `~/.bashrc` or open new terminal session
+* Run `source ~/.bashrc` or open new terminal session
